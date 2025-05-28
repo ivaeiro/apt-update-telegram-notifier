@@ -32,3 +32,21 @@ Antes de usar el script, debes configurar dos variables:
 
 ```bash
 chmod +x update-and-notify.sh
+```
+## ⏰ Automatización con cron
+
+Para que el script se ejecute automáticamente sin que tengas que hacerlo manualmente, puedes programar una tarea con `cron`, que es el programador de tareas de Linux.
+
+### ¿Cómo hacerlo?
+
+1. Abre el editor de tareas de cron para tu usuario con:
+
+```bash
+crontab -e
+```
+
+2. Añade una línea al final del archivo para que el script se ejecute en el horario que desees. Por ejemplo, para ejecutarlo todos los días a las 7 de la mañana:
+
+```bash
+0 7 * * * /ruta/completa/a/update_and-notify.sh
+```
