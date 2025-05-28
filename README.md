@@ -27,8 +27,8 @@ Antes de usar el script, debes configurar dos variables:
 ## 📋 Uso
 
 1. Clona o descarga este repositorio.
-2. Abre el script `update_notify.sh` y reemplaza las variables `BOT_TOKEN` y `CHAT_ID` con tus datos.
+2. Abre el script `update-and-notify.sh` y reemplaza las variables `BOT_TOKEN` y `CHAT_ID` con tus datos.
 3. Da permisos de ejecución al script:
 
 ```bash
-chmod +x update_notify.sh
+chmod +x update-and-notify.sh
