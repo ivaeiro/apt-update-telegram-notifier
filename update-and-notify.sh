@@ -8,7 +8,7 @@ CHAT_ID="TU_CHAT_ID_AQUI"
 sudo apt update
 
 # Obtener lista de paquetes actualizables
-UPGRADABLE=$(apt list --upgradable 2>/dev/null | grep -v "Listing...")
+UPGRADABLE=$(apt list --upgradable 2>/dev/null | grep -vE "Listing...|Listando...")
 
 # Contar cuántos paquetes hay
 UPGRADES=$(echo "$UPGRADABLE" | wc -l)
