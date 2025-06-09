@@ -7,10 +7,10 @@ CHAT_ID="TU_CHAT_ID_AQUI"
 # Actualizar índice de paquetes
 sudo apt update
 
-# Verificar si hay actualizaciones pendientes
+# Obtener lista de paquetes actualizables
 UPGRADABLE=$(apt list --upgradable 2>/dev/null | grep -v "Listing...")
 
-# Contar cuántos paquetes se pueden actualizar
+# Contar cuántos paquetes hay
 UPGRADES=$(echo "$UPGRADABLE" | wc -l)
 
 # Variables del sistema
@@ -18,33 +18,32 @@ HOST=$(hostname)
 IP=$(hostname -I | awk '{print $1}')
 FECHA=$(date "+%a %d %b %Y - %T")
 
-# Inicializar variable de paquetes
-LISTA_PAQUETES=""
-
 # Evaluar si hay actualizaciones
 if [ "$UPGRADES" -gt 0 ]; then
-    LISTA_PAQUETES=$(echo "$UPGRADABLE" | awk -F/ '{print "- " $1}' | head -n 30)
+    LISTA_PAQUETES=$(echo "$UPGRADABLE" | awk -F/ '{print "- " $1}' | grep -v "not found" | head -n 30)
     sudo apt upgrade -y
     ESTADO="✅ Estado: Sistema actualizado correctamente"
+    PAQUETES="📦 *Paquetes actualizados:*
+$LISTA_PAQUETES"
 else
     ESTADO="ℹ Estado: No había actualizaciones pendientes"
+    PAQUETES=""
 fi
 
-# Construir el mensaje con formato Markdown
+# Mensaje final
 MESSAGE="🖥 *Host:* $HOST
 🌐 *IP:* $IP
 📅 *Fecha:* $FECHA
 $ESTADO"
 
-# Agregar lista de paquetes si hay
-if [ "$UPGRADES" -gt 0 ]; then
-    MESSAGE+="
+# Agrega los paquetes si los hay
+if [ -n "$PAQUETES" ]; then
+    MESSAGE="$MESSAGE
 
-📦 *Paquetes actualizados:*
-$LISTA_PAQUETES"
+$PAQUETES"
 fi
 
-# Enviar notificación a Telegram
+# Enviar a Telegram
 curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \
     -d chat_id="$CHAT_ID" \
     -d parse_mode="Markdown" \
