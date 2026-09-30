@@ -4,47 +4,49 @@
 BOT_TOKEN="TU_TOKEN_AQUI"
 CHAT_ID="TU_CHAT_ID_AQUI"
 
-# Actualizar índice de paquetes
-sudo apt update
-
-# Obtener lista de paquetes actualizables
-UPGRADABLE=$(apt list --upgradable 2>/dev/null | grep -vE "Listing...|Listando...")
-
-# Contar cuántos paquetes hay
-UPGRADES=$(echo "$UPGRADABLE" | wc -l)
-
 # Variables del sistema
 HOST=$(hostname)
 IP=$(hostname -I | awk '{print $1}')
 FECHA=$(date "+%a %d %b %Y - %T")
 
-# Evaluar si hay actualizaciones
+# Actualizar índice de paquetes y guardar resultado
+APT_UPDATE=$(sudo apt update 2>&1)
+
+# Comprobar si hay actualizaciones pendientes
+UPGRADES=$(sudo apt list --upgradable 2>/dev/null | grep -v "Listing..." | wc -l)
+
+# Variable para guardar el resultado final
 if [ "$UPGRADES" -gt 0 ]; then
-    LISTA_PAQUETES=$(echo "$UPGRADABLE" | awk -F/ '{print "- " $1}' | grep -v "not found" | head -n 30)
-    sudo apt upgrade -y
-    ESTADO="✅ Estado: Sistema actualizado correctamente"
-    PAQUETES="📦 *Paquetes actualizados:*
-$LISTA_PAQUETES"
+
+    # Actualizar paquetes
+    APT_UPGRADE=$(sudo apt upgrade -y 2>&1)
+
+    ESTADO="✅ <b>Estado:</b> Sistema actualizado correctamente"
+
 else
-    ESTADO="ℹ Estado: No había actualizaciones pendientes"
-    PAQUETES=""
+
+    APT_UPGRADE="No se realizaron actualizaciones."
+    ESTADO="ℹ️ <b>Estado:</b> No había actualizaciones pendientes"
+
 fi
 
-# Mensaje final
-MESSAGE="🖥 *Host:* $HOST
-🌐 *IP:* $IP
-📅 *Fecha:* $FECHA
-$ESTADO"
+# Construir mensaje
+MESSAGE="🖥  <b>Host:</b> $HOST
+🌐 <b>IP:</b> $IP
+📅 <b>Fecha:</b> $FECHA
 
-# Agrega los paquetes si los hay
-if [ -n "$PAQUETES" ]; then
-    MESSAGE="$MESSAGE
+$ESTADO
 
-$PAQUETES"
-fi
+📦 <b>Actualizaciones pendientes:</b> $UPGRADES
+
+<b>APT UPDATE:</b>
+<pre>$APT_UPDATE</pre>
+
+<b>APT UPGRADE:</b>
+<pre>$APT_UPGRADE</pre>"
 
 # Enviar a Telegram
 curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \
     -d chat_id="$CHAT_ID" \
-    -d parse_mode="Markdown" \
-    --data-urlencode "text=$MESSAGE"
+    -d parse_mode="HTML" \
+    --data-urlencode text="$MESSAGE"
